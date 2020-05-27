@@ -2,12 +2,14 @@ declare B = Browse
 
 % TP1: Somme des carrés
 local
-   fun {SqSum2 N Acc} if N==1 then Acc+1 else {SqSum2 N-1 Acc+N*N} end end
-   fun {SqSum N} {SqSum2 N 0} end
+   fun {SqSum N} fun {SqSum2 N Acc} if N==1 then Acc+1 else {SqSum2 N-1 Acc+N*N} end end in {SqSum2 N 0} end
 in
 % Test
    {B {SqSum 10}}
+   {B {SqSum 2}}
+   {B {SqSum 3}}
 end
+
 % TP1: Mirroir
 local
    fun {Mirror2 Num Acc}
@@ -57,7 +59,7 @@ local
    fun {Append L1 L2} if L1 == nil then L2 else L1.1|{Append L1.2 L2} end end
 in
 % Test
-   {B {Append [a b] [c d]}}
+   {B {Append [a b d e f] [c d e f]}}
 end
 % TP2: Take
 local
@@ -128,6 +130,7 @@ local
       end
    end
    fun {Sum2 BT}{Sum2Helper BT 0}end
+   Tree
 in
 % Test
    Tree = btree(42 left: btree(26 left: btree(54 left: empty right: btree(18 left: empty right: empty))right: empty)right: btree(37 left: btree(11 left: empty right: empty)right: empty))
@@ -157,11 +160,13 @@ local
       else wrong_input
       end
    end
+   Dic
 in
 % Test
    Dic = dict(key:10 info:person('Christian' 19) left:dict(key:7 info:person('Denys' 25) left:leaf right:dict(key:9 info:person('David' 7) left:leaf right:leaf)) right:dict(key:18 info:person('Rose' 12) left:dict(key:14 info:person('Ann' 27) left:leaf right:leaf) right:leaf))
    {B {DictHelper Dic fun {$ I} I > 20 end nil}}
 end
+
 % TP2: Lists, Records et Tuples
 local
    fun {WhatsThis R}
@@ -170,19 +175,28 @@ local
 	    record
 	 end
       end
+      T1=t1
+      T2=t2
    end
-   T1 = t1
-   T2 = t2
 in
-   {B {WhatsThis '|'(a b)}} % Tuple de Label '|' et de 2 Fields à Features implicites
-   {B {WhatsThis '|'(a '|'(b nil))}} % Liste
-   {B {WhatsThis '|'(2:nil a)}} % Liste (Les Features sont simplement inversées ([a]))
-   {B {WhatsThis state(1 a 2)}} % Tuple de Label state et de 3 Fields à Features implicites
-   {B {WhatsThis state(1 3:2 2:a)}} % Tuple de label state et Fields désordonnés
-   {B {WhatsThis tree(v:a T1 T2)}} % Record de Lable tree et de Features v, 1 et 2
-   {B {WhatsThis a#b#c}} % Tuple
-   {B {WhatsThis [a b c]}} % Liste
-   {B {WhatsThis m|n|o}} % Tuple
+% Tuple de Label | et de 2 Fields à Features implicites
+% Liste
+% Liste (Les Features sont simplement inversées ([a]))
+% Tuple de Label state et de 3 Fields à Features implicites
+% Tuple de label state et Fields désordonnés
+% Record de Lable tree et de Features v 1 et 2
+% Tuple
+% Liste
+% Tuple
+   {B {WhatsThis '|'(a b)}} 
+   {B {WhatsThis '|'(a '|'(b nil))}} 
+   {B {WhatsThis '|'(2:nil a)}} 
+   {B {WhatsThis state(1 a 2)}} 
+   {B {WhatsThis state(1 3:2 2:a)}} 
+   {B {WhatsThis tree(v:a T1 T2)}}
+   {B {WhatsThis a#b#c}} 
+   {B {WhatsThis [a b c]}} 
+   {B {WhatsThis m|n|o}}
 end
 
 % TP3: Pipeline
@@ -245,5 +259,55 @@ in
    local InS in
       {Browse {Counter InS}}
       InS = a|b|a|a|d|c|b|_
+   end
+end
+
+% TP8: Gates
+local
+   fun {NotGate S}
+      thread
+	 case S of S1|S2 then
+	    (S1+1) mod 2|{NotGate S2}
+	 end
+      end
+   end
+   fun {AndGate X Y}
+      thread
+	 case X of X1|X2 then
+	    case Y of Y1|Y2 then
+	       if X1==Y1 andthen X1 == 1 then 1|{AndGate X2 Y2}
+	       else 0|{AndGate X2 Y2}
+	       end
+	    end
+	 end
+      end
+   end
+   fun {OrGate X Y}
+      thread
+	 case X of X1|X2 then
+	    case Y of Y1|Y2 then
+	       if X1==1 orelse Y1==1 then 1|{OrGate X2 Y2}
+	       else 0|{OrGate X2 Y2}
+	       end
+	    end
+	 end
+      end
+   end
+   fun {Simulate G Ss}
+      thread
+	 case {Label G} of gate then
+	    case G.value of 'or' then {OrGate {Simulate G.1 Ss} {Simulate G.2 Ss}}
+	    [] 'and' then {AndGate {Simulate G.1 Ss} {Simulate G.2 Ss}}
+	    [] 'not' then {NotGate {Simulate G.1 Ss}}
+	    end
+	 [] input then Ss.(G.1)
+	 else error end
+      end
+   end
+   G = gate(value:'or' gate(value:'and' input(x) input(y)) gate(value:'not' input(z)))
+in
+   local Ss in
+      {Browse {Simulate G Ss}}
+      Ss = input(x: 1|0|1|0|_ y:0|1|0|1|_ z:1|1|0|0|_)
    end
 end
