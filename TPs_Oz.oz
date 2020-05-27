@@ -1,10 +1,11 @@
 declare B = Browse
 
-% TP1: Somme des carrés
+% TP1: Somme des carres
 local
    fun {SqSum N} fun {SqSum2 N Acc} if N==1 then Acc+1 else {SqSum2 N-1 Acc+N*N} end end in {SqSum2 N 0} end
 in
 % Test
+   {B somme_carres__}
    {B {SqSum 10}}
    {B {SqSum 2}}
    {B {SqSum 3}}
@@ -20,6 +21,7 @@ local
    fun {Mirror Num} {Mirror2 Num 0} end
 in
 % Test
+   {B mirror__}
    {B {Mirror 12345678901}}
 end
 % TP2: Ecriture listes
@@ -33,6 +35,7 @@ local
    fun {Tail L} case L of L1|L2 then L2 else invalid_input end end
 in
 % Test
+   {B ecriture_listes__}
    {B L1}
    {B L2}
    {B L3}
@@ -50,6 +53,7 @@ local
    fun {Length List} {LengthHelper List 0} end
 in
 % Test
+   {B length__}
    {B {Length [r a p h]}}
    {B {Length [[b o r] i s]}}
    {B {Length [[l u i s]]}}
@@ -59,6 +63,7 @@ local
    fun {Append L1 L2} if L1 == nil then L2 else L1.1|{Append L1.2 L2} end end
 in
 % Test
+   {B append__}
    {B {Append [a b d e f] [c d e f]}}
 end
 % TP2: Take
@@ -66,6 +71,7 @@ local
    fun {Take L N} if N == 0 then nil else L.1|{Take L.2 N-1} end end
 in
 % Test
+   {B take__}
    {B {Take [a b c 1 2 3 n s d a p 6 9] 5}}
 end
 % TP2: Drop
@@ -73,6 +79,7 @@ local
    fun {Drop L N} if N == 0 then L else {Drop L.2 N-1} end end
 in
 % Test
+   {B drop__}
    {B {Drop [a b c d e f g h i j k] 4}}
 end
 % TP2: FindString
@@ -91,6 +98,7 @@ local
    end
 in
 % Test
+   {B findString__}
    {B {FindString [1 2] [1 2 3 4 1 2 4 6 1 4 2 1 2]}}
 end
 % TP2: Btree
@@ -133,6 +141,7 @@ local
    Tree
 in
 % Test
+   {B btree__}
    Tree = btree(42 left: btree(26 left: btree(54 left: empty right: btree(18 left: empty right: empty))right: empty)right: btree(37 left: btree(11 left: empty right: empty)right: empty))
    {B {Promenade Tree}}
    {B {Sum1 Tree}}
@@ -163,6 +172,7 @@ local
    Dic
 in
 % Test
+   {B dictionaryFilter__}
    Dic = dict(key:10 info:person('Christian' 19) left:dict(key:7 info:person('Denys' 25) left:leaf right:dict(key:9 info:person('David' 7) left:leaf right:leaf)) right:dict(key:18 info:person('Rose' 12) left:dict(key:14 info:person('Ann' 27) left:leaf right:leaf) right:leaf))
    {B {DictHelper Dic fun {$ I} I > 20 end nil}}
 end
@@ -175,15 +185,16 @@ local
 	    record
 	 end
       end
-      T1=t1
-      T2=t2
    end
+   T1=t1
+   T2=t2
 in
+   {B lists_records_tuples__}
 % Tuple de Label | et de 2 Fields à Features implicites
 % Liste
-% Liste (Les Features sont simplement inversées ([a]))
+% Liste (Les Features sont simplement inversees ([a]))
 % Tuple de Label state et de 3 Fields à Features implicites
-% Tuple de label state et Fields désordonnés
+% Tuple de label state et Fields désordonnes
 % Record de Lable tree et de Features v 1 et 2
 % Tuple
 % Liste
@@ -225,10 +236,11 @@ local
    end
 in
 % Test
+   {B pipeline__}
    {Browse {PipeLine 100}} % 1+9+25+49+81=165
 end
 
-% TP8
+% TP8: Counter
 local
    fun {AddToDict Elem Dict Done}
       case Dict of D1|D2 then
@@ -256,6 +268,7 @@ local
    end
 in
 % Test
+   {B counter__}
    local InS in
       {Browse {Counter InS}}
       InS = a|b|a|a|d|c|b|_
@@ -307,6 +320,7 @@ local
    G = gate(value:'or' gate(value:'and' input(x) input(y)) gate(value:'not' input(z)))
 in
    local Ss in
+      {B simulate__}
       {Browse {Simulate G Ss}}
       Ss = input(x: 1|0|1|0|_ y:0|1|0|1|_ z:1|1|0|0|_)
    end
