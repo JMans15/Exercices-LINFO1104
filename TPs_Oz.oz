@@ -288,9 +288,7 @@ local
       thread
 	 case X of X1|X2 then
 	    case Y of Y1|Y2 then
-	       if X1==Y1 andthen X1 == 1 then 1|{AndGate X2 Y2}
-	       else 0|{AndGate X2 Y2}
-	       end
+	       (X1*Y1)|{AndGate X2 Y2}
 	    end
 	 end
       end
@@ -299,9 +297,7 @@ local
       thread
 	 case X of X1|X2 then
 	    case Y of Y1|Y2 then
-	       if X1==1 orelse Y1==1 then 1|{OrGate X2 Y2}
-	       else 0|{OrGate X2 Y2}
-	       end
+	       A+B-A*B|{OrGate X2 Y2}
 	    end
 	 end
       end
@@ -323,5 +319,35 @@ in
       {B simulate__}
       {Browse {Simulate G Ss}}
       Ss = input(x: 1|0|1|0|_ y:0|1|0|1|_ z:1|1|0|0|_)
+   end
+end
+
+% TP9
+local
+   fun {MakeBinaryGate F}
+      fun {$ X Y}
+	 thread
+	    case X of X1|X2 then
+	       case Y of Y1|Y2 then
+		  {F X1 Y1}|{{MakeBinaryGate F} X2 Y2}
+	       end
+	    end
+	 end
+      end
+   end
+in
+   {Browse {{MakeBinaryGate fun {$ A B} (A+B) mod 2 end} 1|1|1|0|_ 1|0|0|0|_}}
+   % Question ambigue, que representent R et S? Les etats a chaque temps ou les changements d'etat successifs?
+   % J'ai pris en compte la 2 eme hypothese, en listant R en premier a chaque pas.
+   % De plus, dans un circuit RS, l'etat R=1, S=1 est sense etre interdit, brisant la condition liant Q et NotQ.
+   local R S Q NotQ NorG = {MakeBinaryGate fun {$ A B} A*B-A-B+1 end}
+      proc {Bascule Rs Ss Qs NotQs}
+	 Qs = {NorG Rs 1|NotQs}
+	 NotQs = {NorG Ss 0|Qs}
+      end
+   in
+      {Bascule R S Q NotQ}
+      R=1|0|0|1|0|_ S=0|0|1|0|0|_
+      {Browse Q#NotQ}
    end
 end
